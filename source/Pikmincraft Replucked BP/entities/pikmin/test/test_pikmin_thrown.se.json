@@ -1,0 +1,58 @@
+{
+  "format_version": "1.21.10",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "pkc:thrown_test_pikmin",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false,
+      "properties": {
+        "pkc:stage": {
+          "type": "enum",
+          "values": ["leaf", "bud", "flower"],
+          "default": "leaf",
+          "client_sync": true
+        }
+      }
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": ["pikmin_projectile", "thrown_test_pikmin", "inanimate"]
+      },
+      "minecraft:collision_box": {
+        "width": 0.35,
+        "height": 0.35
+      },
+      "minecraft:projectile": {
+        "on_hit": {
+          "impact_damage": {
+            "damage": 0,
+            "knockback": false,
+            "destroy_on_hit": false
+          }
+        },
+        "power": 1.3,
+        "gravity": 0.05,
+        "inertia": 0.99,
+        "liquid_inertia": 0.99,
+        "anchor": 1,
+        "offset": [0, -0.1, 0],
+        "multiple_targets": true,
+        "should_bounce": false,
+        "reflect_on_hurt": false
+      },
+      "minecraft:physics": {},
+      "minecraft:pushable": {
+        "is_pushable": false,
+        "is_pushable_by_piston": true
+      },
+      "minecraft:conditional_bandwidth_optimization": {
+        "default_values": {
+          "max_optimized_distance": 80.0,
+          "max_dropped_ticks": 5,
+          "use_motion_prediction_hints": true
+        }
+      }
+    }
+  }
+}

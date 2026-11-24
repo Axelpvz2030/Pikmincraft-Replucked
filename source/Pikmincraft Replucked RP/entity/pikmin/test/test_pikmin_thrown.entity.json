@@ -1,0 +1,26 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pkc:thrown_test_pikmin",
+      "materials": {
+        "default": "bee"
+      },
+      "textures": {
+        "default": "textures/entity/pikmin/test_pikmin"
+      },
+      "geometry": {
+        "default": "geometry.test_pikmin"
+      },
+     
+      "scripts": {},
+    
+      "render_controllers": [
+        "controller.render.default"
+      ],
+      "spawn_egg": {
+        "texture": "spawn_egg_bee"
+      }
+    }
+  }
+}

@@ -1,0 +1,405 @@
+{
+  "format_version": "1.21.10",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "pkc:test_pikmin",
+      "is_spawnable": true,
+      "is_summonable": true,
+      "is_experimental": false,
+      "properties": {
+        "pkc:stage": {
+          "type": "enum",
+          "values": ["leaf", "bud", "flower"],
+          "default": "leaf",
+          "client_sync": true
+        },
+        "pkc:state": {
+          "type": "enum",
+          "values": ["normal", "latched", "stunned"],
+          "default": "normal",
+          "client_sync": true
+        },
+        "pkc:spawn_mode": {
+          "type": "enum",
+          "values": ["placed", "thrown"],
+          "default": "placed",
+          "client_sync": false
+        }
+      },
+      "animations": {
+        "on_load": "animation.pkc.pikmin.on_load"
+      },
+      "scripts": {
+        "animate": [
+          "on_load"
+        ]
+      }
+    },
+    "component_groups": {
+      "pkc:cg_tamed": {
+        "minecraft:is_tamed": {}
+      },
+      "pkc:cg_movable": {
+        "minecraft:movement.basic": {}
+      },
+      "pkc:cg_physics_normal": {
+        "minecraft:physics": {
+          "has_gravity": true,
+          "has_collision": true
+        },
+        "minecraft:breathable": {
+          "total_supply": 15,
+          "suffocate_time": 0,
+          "breathes_air": true,
+          "breathes_water": false,
+          "breathes_lava": false,
+          "breathes_solids": false
+        }
+      },
+      "pkc:stage_leaf": {
+        "minecraft:movement": {
+          "value": 0.28
+        }
+      },
+      "pkc:stage_bud": {
+        "minecraft:movement": {
+          "value": 0.33
+        }
+      },
+      "pkc:stage_flower": {
+        "minecraft:movement": {
+          "value": 0.38
+        }
+      },
+      "pkc:cg_placed": {
+        "minecraft:behavior.follow_owner": {
+          "priority": 4,
+          "speed_multiplier": 1.0,
+          "start_distance": 4.0,
+          "stop_distance": 2.5,
+          "max_distance": 60.0,
+          "can_teleport": false
+        },
+        "minecraft:behavior.owner_hurt_by_target": {
+          "priority": 1
+        },
+        "minecraft:behavior.owner_hurt_target": {
+          "priority": 2
+        },
+        "minecraft:behavior.pickup_items": {
+          "priority": 3,
+          "max_dist": 4.0,
+          "goal_radius": 1.5,
+          "speed_multiplier": 1.1,
+          "pickup_based_on_chance": false,
+          "can_pickup_any_item": true,
+          "can_pickup_to_hand_or_equipment": true
+        }
+      },
+      "pkc:cg_thrown_gather": {
+        "minecraft:behavior.pickup_items": {
+          "priority": 1,
+          "max_dist": 5.0,
+          "goal_radius": 1.5,
+          "speed_multiplier": 1.2,
+          "pickup_based_on_chance": false,
+          "can_pickup_any_item": true,
+          "can_pickup_to_hand_or_equipment": true
+        }
+      },
+      "pkc:cg_called_back": {
+        "minecraft:behavior.follow_owner": {
+          "priority": 1,
+          "speed_multiplier": 1.25,
+          "start_distance": 0.5,
+          "stop_distance": 0.0,
+          "max_distance": 60.0,
+          "can_teleport": false
+        },
+        "minecraft:entity_sensor": {
+          "subsensors": [
+            {
+              "range": [1.6, 1.6],
+              "minimum_count": 1,
+              "cooldown": 1.0,
+              "event_filters": {
+                "all_of": [
+                  { "test": "is_family", "subject": "other", "value": "player" },
+                  { "test": "is_owner", "subject": "other", "value": true }
+                ]
+              },
+              "event": "pkc:on_reach_owner"
+            }
+          ]
+        }
+      },
+      "pkc:cg_combat_normal": {
+        "minecraft:behavior.hurt_by_target": {
+          "priority": 2
+        },
+        "minecraft:behavior.delayed_attack": {
+          "priority": 3,
+          "attack_once": false,
+          "track_target": true,
+          "require_complete_path": false,
+          "random_stop_interval": 0,
+          "reach_multiplier": 1.5,
+          "speed_multiplier": 1.15,
+          "attack_duration": 0.5,
+          "hit_delay_pct": 0.5
+        }
+      },
+      "pkc:cg_latched": {
+        "minecraft:physics": {
+          "has_gravity": false,
+          "has_collision": false
+        },
+        "minecraft:breathable": {
+          "total_supply": 15,
+          "suffocate_time": 0,
+          "breathes_air": true,
+          "breathes_water": true,
+          "breathes_lava": true,
+          "breathes_solids": true
+        },
+        "minecraft:behavior.hurt_by_target": {
+          "priority": 1
+        },
+        "minecraft:behavior.delayed_attack": {
+          "priority": 1,
+          "attack_once": false,
+          "track_target": true,
+          "require_complete_path": false,
+          "random_stop_interval": 0,
+          "reach_multiplier": 100.0,
+          "speed_multiplier": 1.0,
+          "attack_duration": 0.5,
+          "hit_delay_pct": 0.5
+        }
+      },
+      "pkc:cg_stunned": {},
+      "pkc:cg_despawn_transform": {
+        "minecraft:transformation": {
+          "into": "pkc:despawn",
+          "drop_equipment": true,
+          "drop_inventory": true,
+          "delay": {
+            "value": 0.0
+          }
+        }
+      }
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": ["pikmin", "test_pikmin", "mob"]
+      },
+      "minecraft:health": {
+        "value": 6,
+        "max": 6
+      },
+      "minecraft:follow_range": {
+        "value": 64
+      },
+      "minecraft:attack": {
+        "damage": 0.1
+      },
+      "minecraft:collision_box": {
+        "width": 0.4,
+        "height": 0.7
+      },
+      "minecraft:tameable": {
+        "probability": 1.0,
+        "tame_event": {
+          "event": "pkc:on_tame",
+          "target": "self"
+        }
+      },
+      "minecraft:equip_item": {},
+      "minecraft:behavior.equip_item": {
+        "priority": 2
+      },
+      "minecraft:shareables": {
+        "all_items": true,
+        "all_items_max_amount": 64,
+        "all_items_want_amount": 64,
+        "items": []
+      },
+      "minecraft:navigation.walk": {
+        "can_path_over_water": true,
+        "avoid_water": true,
+        "avoid_damage_blocks": true
+      },
+      "minecraft:jump.static": {},
+      "minecraft:can_climb": {},
+      "minecraft:pushable": {
+        "is_pushable": true,
+        "is_pushable_by_piston": true
+      },
+      "minecraft:behavior.float": {
+        "priority": 0
+      },
+      "minecraft:behavior.look_at_player": {
+        "priority": 7,
+        "look_distance": 6.0,
+        "probability": 0.02
+      }
+    },
+    "events": {
+      "minecraft:entity_spawned": {
+        "add": {
+          "component_groups": [
+            "pkc:stage_leaf",
+            "pkc:cg_movable",
+            "pkc:cg_physics_normal"
+          ]
+        }
+      },
+      "pkc:on_load": {},
+      "pkc:on_reach_owner": {},
+      "pkc:on_tame": {
+        "add": { "component_groups": ["pkc:cg_tamed"] }
+      },
+      "pkc:set_stage_leaf": {
+        "sequence": [
+          { "remove": { "component_groups": ["pkc:stage_bud", "pkc:stage_flower"] } },
+          { "add": { "component_groups": ["pkc:stage_leaf"] }, "set_property": { "pkc:stage": "leaf" } }
+        ]
+      },
+      "pkc:set_stage_bud": {
+        "sequence": [
+          { "remove": { "component_groups": ["pkc:stage_leaf", "pkc:stage_flower"] } },
+          { "add": { "component_groups": ["pkc:stage_bud"] }, "set_property": { "pkc:stage": "bud" } }
+        ]
+      },
+      "pkc:set_stage_flower": {
+        "sequence": [
+          { "remove": { "component_groups": ["pkc:stage_leaf", "pkc:stage_bud"] } },
+          { "add": { "component_groups": ["pkc:stage_flower"] }, "set_property": { "pkc:stage": "flower" } }
+        ]
+      },
+      "pkc:init_placed": {
+        "sequence": [
+          {
+            "remove": {
+              "component_groups": [
+                "pkc:cg_called_back",
+                "pkc:cg_thrown_gather",
+                "pkc:cg_latched",
+                "pkc:cg_stunned"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "pkc:cg_placed",
+                "pkc:cg_combat_normal",
+                "pkc:cg_movable",
+                "pkc:cg_physics_normal"
+              ]
+            },
+            "set_property": { "pkc:spawn_mode": "placed", "pkc:state": "normal" }
+          }
+        ]
+      },
+      "pkc:init_thrown": {
+        "sequence": [
+          {
+            "remove": {
+              "component_groups": [
+                "pkc:cg_placed",
+                "pkc:cg_latched",
+                "pkc:cg_stunned"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "pkc:cg_combat_normal",
+                "pkc:cg_movable",
+                "pkc:cg_physics_normal"
+              ]
+            },
+            "set_property": { "pkc:spawn_mode": "thrown", "pkc:state": "normal" }
+          }
+        ]
+      },
+      "pkc:start_gather": {
+        "add": { "component_groups": ["pkc:cg_thrown_gather"] }
+      },
+      "pkc:start_called_back": {
+        "sequence": [
+          {
+            "reset_target": {},
+            "remove": {
+              "component_groups": [
+                "pkc:cg_thrown_gather",
+                "pkc:cg_latched",
+                "pkc:cg_stunned",
+                "pkc:cg_placed"
+              ]
+            }
+          },
+          {
+            "add": {
+              "component_groups": [
+                "pkc:cg_called_back",
+                "pkc:cg_combat_normal",
+                "pkc:cg_movable",
+                "pkc:cg_physics_normal"
+              ]
+            },
+            "set_property": { "pkc:state": "normal" }
+          }
+        ]
+      },
+      "pkc:enter_latched": {
+        "sequence": [
+          {
+            "remove": {
+              "component_groups": [
+                "pkc:cg_combat_normal",
+                "pkc:cg_physics_normal",
+                "pkc:cg_placed",
+                "pkc:cg_thrown_gather",
+                "pkc:cg_called_back",
+                "pkc:cg_stunned"
+              ]
+            }
+          },
+          {
+            "add": { "component_groups": ["pkc:cg_latched", "pkc:cg_movable"] },
+            "set_property": { "pkc:state": "latched" }
+          }
+        ]
+      },
+      "pkc:enter_stunned": {
+        "sequence": [
+          {
+            "reset_target": {},
+            "remove": {
+              "component_groups": [
+                "pkc:cg_latched",
+                "pkc:cg_combat_normal",
+                "pkc:cg_movable",
+                "pkc:cg_placed",
+                "pkc:cg_thrown_gather",
+                "pkc:cg_called_back"
+              ]
+            }
+          },
+          {
+            "add": { "component_groups": ["pkc:cg_stunned", "pkc:cg_physics_normal"] },
+            "set_property": { "pkc:state": "stunned" }
+          }
+        ]
+      },
+      "pkc:trigger_despawn": {
+        "add": {
+          "component_groups": ["pkc:cg_despawn_transform"]
+        }
+      }
+    }
+  }
+}
