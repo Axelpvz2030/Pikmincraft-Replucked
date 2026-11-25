@@ -55,7 +55,7 @@ export const SETTINGS = {
   },
   carry: {
     maxCapMultiplier: 1.5,
-    baseSpeedMultiplier: 0.6, // 1/4 average speed at minimum quota
+    baseSpeedMultiplier: 0.6 , // 1/4 average speed at minimum quota
     maxSpeedMultiplier: 1,   // 1/2 average speed at max quota
     minSpeed: 0.0,
     maxSpeed: 5.0,
