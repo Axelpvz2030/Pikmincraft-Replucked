@@ -9,7 +9,8 @@ import {
   onEntityHitEntity,
   onPlayerInteractWithEntity,
 } from "./entities/entityEvents";
-import { pikminManager, latchManager } from "./exports";
+import { pikminManager, latchManager, carryManager } from "./exports";
+
 
 system.beforeEvents.startup.subscribe(data => {
   itemComponentsRegistry(data);
@@ -51,4 +52,5 @@ world.afterEvents.playerInteractWithEntity.subscribe(data => {
 system.runInterval(() => {
   pikminManager.tickProjectiles();
   latchManager.tickLatchedHosts();
+  carryManager.tickCarriers();
 }, 1);

@@ -7,10 +7,6 @@ import {
 } from "../exports";
 import { parsePikminItemId } from "../utils/common";
 
-/**
- * Registers custom item components during startup.
- * @param {import("@minecraft/server").StartupEvent} event
- */
 export function itemComponentsRegistry(event) {
   const registry = event.itemComponentRegistry;
   const components = SETTINGS.custom_components;
@@ -20,6 +16,9 @@ export function itemComponentsRegistry(event) {
       const { source: player, itemStack, block, blockFace, faceLocation } = data;
       const parsed = parsePikminItemId(itemStack?.typeId);
       if (!parsed || !player?.isValid) return;
+
+      // Only place when sneaking; otherwise allow onUse to throw
+      if (!player.isSneaking) return;
 
       placementTickLocks.set(player.id, system.currentTick);
 
@@ -43,7 +42,10 @@ export function itemComponentsRegistry(event) {
       system.runTimeout(() => {
         if (!player?.isValid) return;
         const lastPlaceTick = placementTickLocks.get(player.id);
-        if (lastPlaceTick !== undefined && Math.abs(usedTick - lastPlaceTick) <= 1) {
+        if (
+          lastPlaceTick !== undefined &&
+          Math.abs(usedTick - lastPlaceTick) <= 1
+        ) {
           return;
         }
 
@@ -60,12 +62,12 @@ export function itemComponentsRegistry(event) {
     },
   });
 
-  //console.warn("[PKC] Custom item components registered.");
+  console.warn("[PKC] Custom item components registered.");
 }
 
 export function onItemStartUseOn(event) {
   const { source: player, itemStack } = event;
-  if (parsePikminItemId(itemStack?.typeId)) {
+  if (player?.isSneaking && parsePikminItemId(itemStack?.typeId)) {
     placementTickLocks.set(player.id, system.currentTick);
   }
 }

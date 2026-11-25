@@ -1,5 +1,5 @@
 import { NAMESPACE, SETTINGS } from "../game_settings";
-import { pikminManager, latchManager } from "../exports";
+import { pikminManager, latchManager, carryManager } from "../exports";
 import { Vec3 } from "../utils/Vec3";
 
 export class WhistleManager {
@@ -70,6 +70,14 @@ export class WhistleManager {
 
     for (const pikmin of spherePikmin) {
       if (!pikminManager.isOwnedBy(pikmin, player)) continue;
+
+      // If this Pikmin is carrying a boat/minecart, dissolve the dummy outright (recalls all Pikmin on it)
+      if (carryManager.isPikminCarrying(pikmin.id)) {
+        carryManager.dissolveCarrierForPikmin(pikmin);
+        continue;
+      }
+
+      carryManager.cancelPendingPikmin(pikmin);
 
       const currentState = pikmin.getProperty(SETTINGS.entity_properties.state);
       const stage =

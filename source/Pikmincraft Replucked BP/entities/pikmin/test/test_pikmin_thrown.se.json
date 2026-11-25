@@ -16,6 +16,9 @@
       }
     },
     "components": {
+      "minecraft:scale": {
+        "value": 0.25
+      },
       "minecraft:type_family": {
         "family": ["pikmin_projectile", "thrown_test_pikmin", "inanimate"]
       },

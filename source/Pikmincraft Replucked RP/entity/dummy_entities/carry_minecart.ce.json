@@ -1,0 +1,26 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "pkc:carry_minecart_dummy",
+      "materials": {
+        "default": "bee"
+      },
+      "textures": {
+        "default": "textures/entity/pikmin/test_pikmin"
+      },
+      "geometry": {
+        "default": "geometry.pkc_dummy"
+      },
+     
+      "scripts": {},
+    
+      "render_controllers": [
+        "controller.render.default"
+      ],
+      "spawn_egg": {
+        "texture": "spawn_egg_bee"
+      }
+    }
+  }
+}

@@ -53,9 +53,32 @@ export const SETTINGS = {
     callParticleId: "minecraft:heart_particle",
     callSoundId: "random.orb",
   },
+  carry: {
+    maxCapMultiplier: 1.5,
+    baseSpeedMultiplier: 0.6, // 1/4 average speed at minimum quota
+    maxSpeedMultiplier: 1,   // 1/2 average speed at max quota
+    minSpeed: 0.0,
+    maxSpeed: 5.0,
+    approachTimeoutTicks: 60,
+    vehicles: {
+      boat: {
+        dummyId: `${NAMESPACE}:carry_boat_dummy`,
+        requiredPikmin: 20,
+        mountDistance: 2.2,
+      },
+      minecart: {
+        dummyId: `${NAMESPACE}:carry_minecart_dummy`,
+        requiredPikmin: 10,
+        mountDistance: 1.7,
+      },
+    },
+  },
   exclude_target_families: [
     "pikmin",
     "pikmin_projectile",
+    "carry_dummy",
+    "boat",
+    "minecart",
     "inanimate",
     "projectile",
     "player",

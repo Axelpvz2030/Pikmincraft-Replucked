@@ -1,6 +1,6 @@
 import { system, EntityComponentTypes } from "@minecraft/server";
 import { NAMESPACE, SETTINGS } from "../game_settings";
-import { pikminManager, latchManager } from "../exports";
+import { pikminManager, latchManager, carryManager } from "../exports";
 import { parseThrownPikminEntityId } from "../utils/common";
 
 export function onDataDrivenEntityTrigger(event) {
@@ -10,6 +10,10 @@ export function onDataDrivenEntityTrigger(event) {
   switch (eventId) {
     case `${NAMESPACE}:on_load`: {
       pikminManager.handlePikminReload(entity);
+      break;
+    }
+    case `${NAMESPACE}:on_dummy_load`: {
+      carryManager.handleDummyReload(entity);
       break;
     }
     case `${NAMESPACE}:on_reach_owner`: {
@@ -117,6 +121,8 @@ export function onEntityDie(event) {
 
   const typeFamily = deadEntity.getComponent(EntityComponentTypes.TypeFamily);
   if (typeFamily?.hasTypeFamily("pikmin")) {
+    carryManager.dissolveCarrierForPikmin(deadEntity, deadEntity.id);
+    carryManager.cancelPendingPikmin(deadEntity);
     pikminManager.handlePikminDeathRetarget(deadEntity, damageSource);
     return;
   }

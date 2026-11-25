@@ -6,7 +6,7 @@ import {
   EntityDamageCause,
 } from "@minecraft/server";
 import { NAMESPACE, SETTINGS } from "../game_settings";
-import { activeProjectiles, latchManager } from "../exports";
+import { activeProjectiles, latchManager, carryManager } from "../exports";
 import { Vec3 } from "../utils/Vec3";
 import {
   buildPikminEntityId,
@@ -190,6 +190,40 @@ export class PikminManager {
 
     if (!targetEntity?.isValid) return;
 
+    // 1. Check if we hit a boat, minecart, carry dummy, or an entity riding a boat/minecart
+    const carryTarget = carryManager.resolveCarryTarget(targetEntity);
+    if (carryTarget) {
+      // Spawn slightly above impact so a rejected Pikmin (e.g. full dummy) won't get pulled into the vehicle
+      const safeSpawnLoc = {
+        x: hitLocation.x,
+        y: hitLocation.y + 0.6,
+        z: hitLocation.z,
+      };
+      const pikmin = this.spawnInitializedPikmin(
+        dimension,
+        safeSpawnLoc,
+        owner,
+        type,
+        stage,
+        "thrown",
+      );
+
+      const mounted = carryManager.assignPikminDirectlyToTarget(
+        pikmin,
+        carryTarget,
+        owner,
+      );
+      if (!mounted) {
+        system.runTimeout(() => {
+          if (pikmin?.isValid) {
+            this.startCalledBack(pikmin);
+          }
+        }, 2);
+      }
+      return;
+    }
+
+    // 2. Otherwise spawn and latch onto valid combat targets
     const pikmin = this.spawnInitializedPikmin(
       dimension,
       hitLocation,
@@ -238,7 +272,19 @@ export class PikminManager {
 
     const radius = SETTINGS.pikmin.landingSearchRadius;
 
-    // Priority 1: Dropped items
+    // Priority 1: Boats, chest boats, and minecarts (takes priority over items & ground combat)
+    if (
+      carryManager.tryAssignPikminToNearbyCarrier(
+        pikmin,
+        spawnLoc,
+        radius,
+        owner,
+      )
+    ) {
+      return;
+    }
+
+    // Priority 2: Dropped items
     const nearbyItems = dimension.getEntities({
       location: spawnLoc,
       maxDistance: radius,
@@ -250,7 +296,7 @@ export class PikminManager {
       return;
     }
 
-    // Priority 2: Targetable entities within 4-block landing radius
+    // Priority 3: Targetable entities within landing radius
     const nearbyTarget = this.findClosestCombatTarget(
       pikmin,
       spawnLoc,
@@ -266,7 +312,7 @@ export class PikminManager {
       return;
     }
 
-    // Priority 3: Nothing to do -> Call back immediately
+    // Priority 4: Nothing to do -> Call back immediately
     system.runTimeout(() => {
       if (pikmin?.isValid) {
         this.startCalledBack(pikmin);
@@ -294,11 +340,11 @@ export class PikminManager {
   // TARGETING (0.67 VOID DAMAGE) & COMBAT
   // ==========================================
 
-  forceTargetEntity(pikmin, targetEntity) {
-    if (!pikmin?.isValid || !targetEntity?.isValid) return;
+  forceTargetEntity(entityToAggro, targetEntity) {
+    if (!entityToAggro?.isValid || !targetEntity?.isValid) return;
 
     try {
-      pikmin.applyDamage(SETTINGS.pikmin.aggroSignalDamage, {
+      entityToAggro.applyDamage(SETTINGS.pikmin.aggroSignalDamage, {
         cause: EntityDamageCause.void,
         damagingEntity: targetEntity,
       });
@@ -310,6 +356,15 @@ export class PikminManager {
 
     const healthComp = target.getComponent(EntityComponentTypes.Health);
     if (!healthComp || healthComp.currentValue <= 0) return;
+
+    // Cancel attack knockback only when a latched Pikmin hits a grounded target
+    const isLatched =
+      pikmin.getProperty(SETTINGS.entity_properties.state) === "latched";
+    if (isLatched && target.isOnGround) {
+      try {
+        target.clearVelocity();
+      } catch {}
+    }
 
     // Factor in Resistance effect (20% reduction per level)
     let damageReduction = 0;
@@ -324,7 +379,6 @@ export class PikminManager {
     if (indirectDamage <= 0) return;
 
     const remainingHp = healthComp.currentValue - indirectDamage;
-    console.warn(`Dealth: ${indirectDamage} damage, remaining ${remainingHp}`)
 
     // If this hit is lethal (<= 0 HP), execute immediately with owner attribution
     if (remainingHp <= 0.001) {
@@ -372,6 +426,7 @@ export class PikminManager {
       }
     }
   }
+
   /**
    * When a Pikmin is killed by another entity, finds the nearest living Pikmin
    * of the same owner within `deathRetargetRadius` and forces the killer to target it.
@@ -405,7 +460,9 @@ export class PikminManager {
 
       for (const candidate of nearbyPikmin) {
         if (!candidate?.isValid || candidate.id === deadId) continue;
-        if (candidate.getDynamicProperty(SETTINGS.dynamic_properties.despawning)) {
+        if (
+          candidate.getDynamicProperty(SETTINGS.dynamic_properties.despawning)
+        ) {
           continue;
         }
         if (this.getOwnerId(candidate) !== ownerId) continue;
@@ -424,14 +481,6 @@ export class PikminManager {
         this.forceTargetEntity(killer, nearestPikmin);
       }
     }, 1);
-  }
-
-  getOwnerId(pikmin) {
-    if (!pikmin?.isValid) return undefined;
-    return (
-      pikmin.getDynamicProperty(SETTINGS.dynamic_properties.ownerId) ??
-      pikmin.getComponent(EntityComponentTypes.Tameable)?.tamedToPlayerId
-    );
   }
 
   // ==========================================
@@ -475,26 +524,26 @@ export class PikminManager {
       pikmin.getProperty(SETTINGS.entity_properties.stage) ?? "leaf";
     const pikminItemStack = new ItemStack(buildPikminItemId(type, stage), 1);
 
-    // Check residue when adding the Pikmin item to the owner
     const residue = playerInv.addItem(pikminItemStack);
     if (residue) {
       return;
     }
 
-    // Lock against duplicate pickup calls while transforming
     pikmin.setDynamicProperty(SETTINGS.dynamic_properties.despawning, true);
 
     if (pikmin.getProperty(SETTINGS.entity_properties.state) === "latched") {
       latchManager.detachSinglePikmin(pikmin, false);
+    } else if (carryManager.isPikminCarrying(pikmin.id)) {
+      carryManager.dissolveCarrierForPikmin(pikmin, pikmin.id);
+    } else {
+      carryManager.cancelPendingPikmin(pikmin);
     }
 
     const dropPos = { ...pikmin.location };
     const dimension = pikmin.dimension;
 
-    // Transform into pkc:despawn (drop_equipment: true -> drops held item on the ground)
     pikmin.triggerEvent(`${NAMESPACE}:trigger_despawn`);
 
-    // Sweep dropped items into the owner's inventory right after transformation
     system.runTimeout(() => {
       if (!owner?.isValid) return;
       const targetInv = owner.getComponent(
@@ -536,7 +585,6 @@ export class PikminManager {
     const currentState = pikmin.getProperty(SETTINGS.entity_properties.state);
     if (currentState === "normal") return;
 
-    // Ignore initial spawn firing while actively tracked in memory
     if (
       currentState === "latched" &&
       latchManager.findHostEntryByPikminId(pikmin.id)
@@ -547,6 +595,9 @@ export class PikminManager {
       currentState === "stunned" &&
       latchManager.isStunTimerActive(pikmin.id)
     ) {
+      return;
+    }
+    if (currentState === "carry" && carryManager.isPikminCarrying(pikmin.id)) {
       return;
     }
 
@@ -590,19 +641,22 @@ export class PikminManager {
     return ownerId ? world.getEntity(ownerId) : null;
   }
 
-  getOwner(pikmin) {
-    const ownerId =
+  getOwnerId(pikmin) {
+    if (!pikmin?.isValid) return undefined;
+    return (
       pikmin.getDynamicProperty(SETTINGS.dynamic_properties.ownerId) ??
-      pikmin.getComponent(EntityComponentTypes.Tameable)?.tamedToPlayerId;
+      pikmin.getComponent(EntityComponentTypes.Tameable)?.tamedToPlayerId
+    );
+  }
+
+  getOwner(pikmin) {
+    const ownerId = this.getOwnerId(pikmin);
     return ownerId ? world.getEntity(ownerId) : null;
   }
 
   isOwnedBy(pikmin, player) {
     if (!pikmin?.isValid || !player?.isValid) return false;
-    const ownerId =
-      pikmin.getDynamicProperty(SETTINGS.dynamic_properties.ownerId) ??
-      pikmin.getComponent(EntityComponentTypes.Tameable)?.tamedToPlayerId;
-    return ownerId === player.id;
+    return this.getOwnerId(pikmin) === player.id;
   }
 
   isValidCombatTarget(pikmin, candidate, owner, excludeEntityId = null) {

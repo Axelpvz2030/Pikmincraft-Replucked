@@ -1,0 +1,417 @@
+{
+  "format_version": "1.21.10",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "pkc:carry_boat_dummy",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false,
+      "animations": {
+        "on_load": "animation.pkc.carry_dummy.on_load"
+      },
+      "scripts": {
+        "animate": ["on_load"]
+      }
+    },
+    "component_groups": {
+      "pkc:cg_tamed": {
+        "minecraft:is_tamed": {}
+      },
+      "pkc:cg_following": {
+        "minecraft:behavior.follow_owner": {
+          "priority": 1,
+          "speed_multiplier": 1.0,
+          "start_distance": 3.0,
+          "stop_distance": 2.0,
+          "max_distance": 64.0,
+          "can_teleport": false
+        }
+      },
+      "pkc:speed_0_0": { "minecraft:movement": { "value": 0.0 } },
+      "pkc:speed_0_1": { "minecraft:movement": { "value": 0.1 } },
+      "pkc:speed_0_2": { "minecraft:movement": { "value": 0.2 } },
+      "pkc:speed_0_3": { "minecraft:movement": { "value": 0.3 } },
+      "pkc:speed_0_4": { "minecraft:movement": { "value": 0.4 } },
+      "pkc:speed_0_5": { "minecraft:movement": { "value": 0.5 } },
+      "pkc:speed_0_6": { "minecraft:movement": { "value": 0.6 } },
+      "pkc:speed_0_7": { "minecraft:movement": { "value": 0.7 } },
+      "pkc:speed_0_8": { "minecraft:movement": { "value": 0.8 } },
+      "pkc:speed_0_9": { "minecraft:movement": { "value": 0.9 } },
+      "pkc:speed_1_0": { "minecraft:movement": { "value": 1.0 } },
+      "pkc:speed_1_1": { "minecraft:movement": { "value": 1.1 } },
+      "pkc:speed_1_2": { "minecraft:movement": { "value": 1.2 } },
+      "pkc:speed_1_3": { "minecraft:movement": { "value": 1.3 } },
+      "pkc:speed_1_4": { "minecraft:movement": { "value": 1.4 } },
+      "pkc:speed_1_5": { "minecraft:movement": { "value": 1.5 } },
+      "pkc:speed_1_6": { "minecraft:movement": { "value": 1.6 } },
+      "pkc:speed_1_7": { "minecraft:movement": { "value": 1.7 } },
+      "pkc:speed_1_8": { "minecraft:movement": { "value": 1.8 } },
+      "pkc:speed_1_9": { "minecraft:movement": { "value": 1.9 } },
+      "pkc:speed_2_0": { "minecraft:movement": { "value": 2.0 } },
+      "pkc:speed_2_1": { "minecraft:movement": { "value": 2.1 } },
+      "pkc:speed_2_2": { "minecraft:movement": { "value": 2.2 } },
+      "pkc:speed_2_3": { "minecraft:movement": { "value": 2.3 } },
+      "pkc:speed_2_4": { "minecraft:movement": { "value": 2.4 } },
+      "pkc:speed_2_5": { "minecraft:movement": { "value": 2.5 } },
+      "pkc:speed_2_6": { "minecraft:movement": { "value": 2.6 } },
+      "pkc:speed_2_7": { "minecraft:movement": { "value": 2.7 } },
+      "pkc:speed_2_8": { "minecraft:movement": { "value": 2.8 } },
+      "pkc:speed_2_9": { "minecraft:movement": { "value": 2.9 } },
+      "pkc:speed_3_0": { "minecraft:movement": { "value": 3.0 } },
+      "pkc:speed_3_1": { "minecraft:movement": { "value": 3.1 } },
+      "pkc:speed_3_2": { "minecraft:movement": { "value": 3.2 } },
+      "pkc:speed_3_3": { "minecraft:movement": { "value": 3.3 } },
+      "pkc:speed_3_4": { "minecraft:movement": { "value": 3.4 } },
+      "pkc:speed_3_5": { "minecraft:movement": { "value": 3.5 } },
+      "pkc:speed_3_6": { "minecraft:movement": { "value": 3.6 } },
+      "pkc:speed_3_7": { "minecraft:movement": { "value": 3.7 } },
+      "pkc:speed_3_8": { "minecraft:movement": { "value": 3.8 } },
+      "pkc:speed_3_9": { "minecraft:movement": { "value": 3.9 } },
+      "pkc:speed_4_0": { "minecraft:movement": { "value": 4.0 } },
+      "pkc:speed_4_1": { "minecraft:movement": { "value": 4.1 } },
+      "pkc:speed_4_2": { "minecraft:movement": { "value": 4.2 } },
+      "pkc:speed_4_3": { "minecraft:movement": { "value": 4.3 } },
+      "pkc:speed_4_4": { "minecraft:movement": { "value": 4.4 } },
+      "pkc:speed_4_5": { "minecraft:movement": { "value": 4.5 } },
+      "pkc:speed_4_6": { "minecraft:movement": { "value": 4.6 } },
+      "pkc:speed_4_7": { "minecraft:movement": { "value": 4.7 } },
+      "pkc:speed_4_8": { "minecraft:movement": { "value": 4.8 } },
+      "pkc:speed_4_9": { "minecraft:movement": { "value": 4.9 } },
+      "pkc:speed_5_0": { "minecraft:movement": { "value": 5.0 } }
+    },
+    "components": {
+      "minecraft:variable_max_auto_step": {
+        "base_value": 1.25625,
+        "controlled_value": 1.25625,
+        "jump_prevented_value": 0.5625
+      },
+      "minecraft:type_family": {
+        "family": ["carry_dummy", "carry_boat_dummy", "inanimate"]
+      },
+      "minecraft:health": {
+        "value": 20,
+        "max": 20
+      },
+      "minecraft:damage_sensor": {
+        "triggers": {
+          "cause": "all",
+          "deals_damage": false
+        }
+      },
+      "minecraft:nameable": {
+        "always_show": true,
+        "allow_name_tag_renaming": false
+      },
+      "minecraft:collision_box": {
+        "width": 1.9,
+        "height": 0.455
+      },
+      "minecraft:physics": {
+        "has_gravity": true,
+        "has_collision": true
+      },
+      "minecraft:pushable": {
+        "is_pushable": false,
+        "is_pushable_by_piston": true
+      },
+      "minecraft:tameable": {
+        "probability": 1.0,
+        "tame_event": {
+          "event": "pkc:on_tame",
+          "target": "self"
+        }
+      },
+      "minecraft:follow_range": {
+        "value": 64
+      },
+      "minecraft:movement.basic": {},
+      "minecraft:navigation.walk": {
+        "can_path_over_water": true,
+        "avoid_damage_blocks": true
+      },
+      "minecraft:jump.static": {},
+      "minecraft:behavior.float": {
+        "priority": 0
+      },
+      "minecraft:rideable": {
+        "seat_count": 31,
+        "pull_in_entities": false,
+        "crouching_skip_interact": true,
+        "family_types": ["boat", "pikmin"],
+        "seats": [
+          { "position": [0.0, 0.0, 0.0], "lock_rider_rotation": 5 },
+          {
+            "position": [0.0, 0.0, 1.0],
+            "rotate_rider_by": 180,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [0.21, 0.0, 0.98],
+            "rotate_rider_by": 168,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [0.41, 0.0, 0.91],
+            "rotate_rider_by": 156,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [0.59, 0.0, 0.81],
+            "rotate_rider_by": 144,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [0.74, 0.0, 0.67],
+            "rotate_rider_by": 132,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [0.87, 0.0, 0.5],
+            "rotate_rider_by": 120,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [0.95, 0.0, 0.31],
+            "rotate_rider_by": 108,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [0.99, 0.0, 0.1],
+            "rotate_rider_by": 96,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [0.99, 0.0, -0.1],
+            "rotate_rider_by": 84,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [0.95, 0.0, -0.31],
+            "rotate_rider_by": 72,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [0.87, 0.0, -0.5],
+            "rotate_rider_by": 60,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [0.74, 0.0, -0.67],
+            "rotate_rider_by": 48,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [0.59, 0.0, -0.81],
+            "rotate_rider_by": 36,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [0.41, 0.0, -0.91],
+            "rotate_rider_by": 24,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [0.21, 0.0, -0.98],
+            "rotate_rider_by": 12,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [0.0, 0.0, -1.0],
+            "rotate_rider_by": 0,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [-0.21, 0.0, -0.98],
+            "rotate_rider_by": -12,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [-0.41, 0.0, -0.91],
+            "rotate_rider_by": -24,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [-0.59, 0.0, -0.81],
+            "rotate_rider_by": -36,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [-0.74, 0.0, -0.67],
+            "rotate_rider_by": -48,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [-0.87, 0.0, -0.5],
+            "rotate_rider_by": -60,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [-0.95, 0.0, -0.31],
+            "rotate_rider_by": -72,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [-0.99, 0.0, -0.1],
+            "rotate_rider_by": -84,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [-0.99, 0.0, 0.1],
+            "rotate_rider_by": -96,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [-0.95, 0.0, 0.31],
+            "rotate_rider_by": -108,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [-0.87, 0.0, 0.5],
+            "rotate_rider_by": -120,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [-0.74, 0.0, 0.67],
+            "rotate_rider_by": -132,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [-0.59, 0.0, 0.81],
+            "rotate_rider_by": -144,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [-0.41, 0.0, 0.91],
+            "rotate_rider_by": -156,
+            "lock_rider_rotation": 5
+          },
+          {
+            "position": [-0.21, 0.0, 0.98],
+            "rotate_rider_by": -168,
+            "lock_rider_rotation": 5
+          }
+        ]
+      }
+    },
+    "events": {
+      "minecraft:entity_spawned": {
+        "add": { "component_groups": ["pkc:speed_0_0"] }
+      },
+      "pkc:on_dummy_load": {},
+      "pkc:on_tame": {
+        "add": { "component_groups": ["pkc:cg_tamed"] }
+      },
+      "pkc:start_following": {
+        "add": { "component_groups": ["pkc:cg_following"] }
+      },
+      "pkc:reset_speed": {
+        "remove": {
+          "component_groups": [
+            "pkc:speed_0_0",
+            "pkc:speed_0_1",
+            "pkc:speed_0_2",
+            "pkc:speed_0_3",
+            "pkc:speed_0_4",
+            "pkc:speed_0_5",
+            "pkc:speed_0_6",
+            "pkc:speed_0_7",
+            "pkc:speed_0_8",
+            "pkc:speed_0_9",
+            "pkc:speed_1_0",
+            "pkc:speed_1_1",
+            "pkc:speed_1_2",
+            "pkc:speed_1_3",
+            "pkc:speed_1_4",
+            "pkc:speed_1_5",
+            "pkc:speed_1_6",
+            "pkc:speed_1_7",
+            "pkc:speed_1_8",
+            "pkc:speed_1_9",
+            "pkc:speed_2_0",
+            "pkc:speed_2_1",
+            "pkc:speed_2_2",
+            "pkc:speed_2_3",
+            "pkc:speed_2_4",
+            "pkc:speed_2_5",
+            "pkc:speed_2_6",
+            "pkc:speed_2_7",
+            "pkc:speed_2_8",
+            "pkc:speed_2_9",
+            "pkc:speed_3_0",
+            "pkc:speed_3_1",
+            "pkc:speed_3_2",
+            "pkc:speed_3_3",
+            "pkc:speed_3_4",
+            "pkc:speed_3_5",
+            "pkc:speed_3_6",
+            "pkc:speed_3_7",
+            "pkc:speed_3_8",
+            "pkc:speed_3_9",
+            "pkc:speed_4_0",
+            "pkc:speed_4_1",
+            "pkc:speed_4_2",
+            "pkc:speed_4_3",
+            "pkc:speed_4_4",
+            "pkc:speed_4_5",
+            "pkc:speed_4_6",
+            "pkc:speed_4_7",
+            "pkc:speed_4_8",
+            "pkc:speed_4_9",
+            "pkc:speed_5_0"
+          ]
+        }
+      },
+      "pkc:set_speed_0_0": { "add": { "component_groups": ["pkc:speed_0_0"] } },
+      "pkc:set_speed_0_1": { "add": { "component_groups": ["pkc:speed_0_1"] } },
+      "pkc:set_speed_0_2": { "add": { "component_groups": ["pkc:speed_0_2"] } },
+      "pkc:set_speed_0_3": { "add": { "component_groups": ["pkc:speed_0_3"] } },
+      "pkc:set_speed_0_4": { "add": { "component_groups": ["pkc:speed_0_4"] } },
+      "pkc:set_speed_0_5": { "add": { "component_groups": ["pkc:speed_0_5"] } },
+      "pkc:set_speed_0_6": { "add": { "component_groups": ["pkc:speed_0_6"] } },
+      "pkc:set_speed_0_7": { "add": { "component_groups": ["pkc:speed_0_7"] } },
+      "pkc:set_speed_0_8": { "add": { "component_groups": ["pkc:speed_0_8"] } },
+      "pkc:set_speed_0_9": { "add": { "component_groups": ["pkc:speed_0_9"] } },
+      "pkc:set_speed_1_0": { "add": { "component_groups": ["pkc:speed_1_0"] } },
+      "pkc:set_speed_1_1": { "add": { "component_groups": ["pkc:speed_1_1"] } },
+      "pkc:set_speed_1_2": { "add": { "component_groups": ["pkc:speed_1_2"] } },
+      "pkc:set_speed_1_3": { "add": { "component_groups": ["pkc:speed_1_3"] } },
+      "pkc:set_speed_1_4": { "add": { "component_groups": ["pkc:speed_1_4"] } },
+      "pkc:set_speed_1_5": { "add": { "component_groups": ["pkc:speed_1_5"] } },
+      "pkc:set_speed_1_6": { "add": { "component_groups": ["pkc:speed_1_6"] } },
+      "pkc:set_speed_1_7": { "add": { "component_groups": ["pkc:speed_1_7"] } },
+      "pkc:set_speed_1_8": { "add": { "component_groups": ["pkc:speed_1_8"] } },
+      "pkc:set_speed_1_9": { "add": { "component_groups": ["pkc:speed_1_9"] } },
+      "pkc:set_speed_2_0": { "add": { "component_groups": ["pkc:speed_2_0"] } },
+      "pkc:set_speed_2_1": { "add": { "component_groups": ["pkc:speed_2_1"] } },
+      "pkc:set_speed_2_2": { "add": { "component_groups": ["pkc:speed_2_2"] } },
+      "pkc:set_speed_2_3": { "add": { "component_groups": ["pkc:speed_2_3"] } },
+      "pkc:set_speed_2_4": { "add": { "component_groups": ["pkc:speed_2_4"] } },
+      "pkc:set_speed_2_5": { "add": { "component_groups": ["pkc:speed_2_5"] } },
+      "pkc:set_speed_2_6": { "add": { "component_groups": ["pkc:speed_2_6"] } },
+      "pkc:set_speed_2_7": { "add": { "component_groups": ["pkc:speed_2_7"] } },
+      "pkc:set_speed_2_8": { "add": { "component_groups": ["pkc:speed_2_8"] } },
+      "pkc:set_speed_2_9": { "add": { "component_groups": ["pkc:speed_2_9"] } },
+      "pkc:set_speed_3_0": { "add": { "component_groups": ["pkc:speed_3_0"] } },
+      "pkc:set_speed_3_1": { "add": { "component_groups": ["pkc:speed_3_1"] } },
+      "pkc:set_speed_3_2": { "add": { "component_groups": ["pkc:speed_3_2"] } },
+      "pkc:set_speed_3_3": { "add": { "component_groups": ["pkc:speed_3_3"] } },
+      "pkc:set_speed_3_4": { "add": { "component_groups": ["pkc:speed_3_4"] } },
+      "pkc:set_speed_3_5": { "add": { "component_groups": ["pkc:speed_3_5"] } },
+      "pkc:set_speed_3_6": { "add": { "component_groups": ["pkc:speed_3_6"] } },
+      "pkc:set_speed_3_7": { "add": { "component_groups": ["pkc:speed_3_7"] } },
+      "pkc:set_speed_3_8": { "add": { "component_groups": ["pkc:speed_3_8"] } },
+      "pkc:set_speed_3_9": { "add": { "component_groups": ["pkc:speed_3_9"] } },
+      "pkc:set_speed_4_0": { "add": { "component_groups": ["pkc:speed_4_0"] } },
+      "pkc:set_speed_4_1": { "add": { "component_groups": ["pkc:speed_4_1"] } },
+      "pkc:set_speed_4_2": { "add": { "component_groups": ["pkc:speed_4_2"] } },
+      "pkc:set_speed_4_3": { "add": { "component_groups": ["pkc:speed_4_3"] } },
+      "pkc:set_speed_4_4": { "add": { "component_groups": ["pkc:speed_4_4"] } },
+      "pkc:set_speed_4_5": { "add": { "component_groups": ["pkc:speed_4_5"] } },
+      "pkc:set_speed_4_6": { "add": { "component_groups": ["pkc:speed_4_6"] } },
+      "pkc:set_speed_4_7": { "add": { "component_groups": ["pkc:speed_4_7"] } },
+      "pkc:set_speed_4_8": { "add": { "component_groups": ["pkc:speed_4_8"] } },
+      "pkc:set_speed_4_9": { "add": { "component_groups": ["pkc:speed_4_9"] } },
+      "pkc:set_speed_5_0": { "add": { "component_groups": ["pkc:speed_5_0"] } }
+    }
+  }
+}

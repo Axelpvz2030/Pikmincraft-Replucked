@@ -9,6 +9,15 @@
           "@s pkc:on_load"
         ]
       }
+    },
+    "animation.pkc.carry_dummy.on_load": {
+      "loop": false,
+      "animation_length": 0.1,
+      "timeline": {
+        "0.0": [
+          "@s pkc:on_dummy_load"
+        ]
+      }
     }
   }
 }
