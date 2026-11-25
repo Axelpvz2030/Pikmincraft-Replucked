@@ -55,10 +55,11 @@ export const SETTINGS = {
   },
   carry: {
     maxCapMultiplier: 1.5,
-    baseSpeedMultiplier: 0.6 , // 1/4 average speed at minimum quota
-    maxSpeedMultiplier: 1,   // 1/2 average speed at max quota
+    baseSpeedMultiplier: 0.5, // 1/2 average speed at minimum quota
+    maxSpeedMultiplier: 1.0,  // Full average speed at max quota
     minSpeed: 0.0,
-    maxSpeed: 5.0,
+    maxSpeed: 1.0,
+    speedStep: 0.025,
     approachTimeoutTicks: 60,
     vehicles: {
       boat: {

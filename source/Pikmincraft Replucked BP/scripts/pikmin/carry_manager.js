@@ -194,7 +194,7 @@ export class CarryManager {
 
   /**
    * Averages the movement value of all mounted Pikmin, scales by `multiplier`,
-   * and snaps to the closest 0.1 step in [0.0, 5.0].
+   * and snaps to the closest 0.025 step in [0.000, 1.000].
    */
   applyAveragePikminSpeed(entry, multiplier = 1.0) {
     let totalSpeed = 0;
@@ -215,14 +215,17 @@ export class CarryManager {
       SETTINGS.carry.minSpeed,
       Math.min(SETTINGS.carry.maxSpeed, scaledSpeed),
     );
-    let snapped = Math.round(clamped * 10) / 10;
 
-    // Avoid freezing the dummy if a slow Pikmin type rounds down to 0.0
-    if (scaledSpeed > 0 && snapped === 0) {
-      snapped = 0.1;
+    const step = SETTINGS.carry.speedStep ?? 0.025;
+    const invStep = Math.round(1 / step);
+    let snappedUnits = Math.round(clamped * invStep);
+
+    // Avoid freezing the dummy if a slow Pikmin type rounds down to 0.000
+    if (scaledSpeed > 0 && snappedUnits === 0) {
+      snappedUnits = 1;
     }
 
-    const speedKey = snapped.toFixed(1).replace(".", "_");
+    const speedKey = (snappedUnits / invStep).toFixed(3).replace(".", "_");
 
     entry.dummy.triggerEvent(`${NAMESPACE}:reset_speed`);
     entry.dummy.triggerEvent(`${NAMESPACE}:set_speed_${speedKey}`);
