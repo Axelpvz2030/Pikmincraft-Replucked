@@ -1,4 +1,8 @@
-import { system, EntityComponentTypes } from "@minecraft/server";
+import {
+  system,
+  EntityComponentTypes,
+  MolangVariableMap,
+} from "@minecraft/server";
 import { NAMESPACE, SETTINGS } from "../game_settings";
 import { latchedHosts, pikminManager } from "../exports";
 import { Vec3 } from "../utils/Vec3";
@@ -13,19 +17,41 @@ export class LatchManager {
   }
 
   /**
-   * Attaches a Pikmin to a target entity, bumping the offset with both entities' AABBs so hitboxes never push.
+   * Attaches a Pikmin to a target entity and caches the host's AABB dimensions for shake-off anger particles.
    */
   attachPikmin(pikmin, hostEntity, impactLocation) {
     if (!pikmin?.isValid || !hostEntity?.isValid) return;
 
-    const offset = this.computePaddedOffset(pikmin, hostEntity, impactLocation);
+    const hostAabb = hostEntity.getAABB();
+    const offset = this.computePaddedOffset(
+      pikmin,
+      hostEntity,
+      impactLocation,
+      hostAabb,
+    );
 
     let hostEntry = latchedHosts.get(hostEntity.id);
     if (!hostEntry) {
+      const aabbCenterOffset = Vec3.subtract(
+        hostAabb.center,
+        hostEntity.location,
+      );
+
+      const angerMolang = new MolangVariableMap();
+      angerMolang.setFloat("variable.half_width", hostAabb.extent.x);
+      angerMolang.setFloat("variable.half_height", hostAabb.extent.y);
+
       hostEntry = {
         host: hostEntity,
         points: 0,
         maxPointsTick: null,
+        aabbExtent: {
+          x: hostAabb.extent.x,
+          y: hostAabb.extent.y,
+          z: hostAabb.extent.z,
+        },
+        aabbCenterOffset,
+        angerMolang,
         pikminMap: new Map(),
       };
       latchedHosts.set(hostEntity.id, hostEntry);
@@ -38,7 +64,6 @@ export class LatchManager {
 
     pikmin.triggerEvent(`${NAMESPACE}:enter_latched`);
 
-    // Wait 2 ticks so pkc:cg_latched's hurt_by_target & delayed_attack initialize before aggroing
     system.runTimeout(() => {
       if (
         pikmin?.isValid &&
@@ -53,8 +78,8 @@ export class LatchManager {
   /**
    * Uses `getAABB()` on both the target and the Pikmin so their collision boxes stay separated while attached.
    */
-  computePaddedOffset(pikmin, hostEntity, impactLocation) {
-    const hostAabb = hostEntity.getAABB();
+  computePaddedOffset(pikmin, hostEntity, impactLocation, hostAabb = null) {
+    const resolvedHostAabb = hostAabb ?? hostEntity.getAABB();
     const pikminAabb = pikmin.getAABB();
 
     const rawDelta = Vec3.subtract(impactLocation, hostEntity.location);
@@ -65,13 +90,13 @@ export class LatchManager {
         : new Vec3(1, 0, 0);
 
     const minSafeHorizontalDist =
-      Math.max(hostAabb.extent.x, hostAabb.extent.z) +
+      Math.max(resolvedHostAabb.extent.x, resolvedHostAabb.extent.z) +
       Math.max(pikminAabb.extent.x, pikminAabb.extent.z) +
       SETTINGS.latch.aabbPadding;
 
     const clampedY = Math.max(
       0.1,
-      Math.min(rawDelta.y, hostAabb.extent.y * 1.6),
+      Math.min(rawDelta.y, resolvedHostAabb.extent.y * 1.6),
     );
 
     return new Vec3(
@@ -82,22 +107,29 @@ export class LatchManager {
   }
 
   /**
-   * Runs every tick from `main.js` to teleport latched Pikmin and emit anger particles at 5 points.
+   * Runs every tick from `main.js` to teleport latched Pikmin and emit box-surface anger particles at 5 points.
    */
   tickLatchedHosts() {
     for (const [hostId, hostEntry] of latchedHosts.entries()) {
-      const { host, pikminMap, points } = hostEntry;
+      const { host, pikminMap, points, aabbCenterOffset, angerMolang } =
+        hostEntry;
 
       if (!host?.isValid) {
         this.handleHostDeath(hostId);
         continue;
       }
 
-      if (points >= SETTINGS.latch.maxPoints && system.currentTick % 10 === 0) {
-        const headPos = Vec3.add(host.location, new Vec3(0, 1.5, 0));
+      if (
+        points >= SETTINGS.latch.maxPoints &&
+        system.currentTick % SETTINGS.latch.angerParticleIntervalTicks === 0
+      ) {
+        const boxCenter = Vec3.add(host.location, aabbCenterOffset);
         try {
-         
-          host.dimension.spawnParticle("minecraft:villager_angry", headPos);
+          host.dimension.spawnParticle(
+            SETTINGS.latch.angerParticleId,
+            boxCenter,
+            angerMolang,
+          );
         } catch {}
       }
 
@@ -137,9 +169,7 @@ export class LatchManager {
     // Optional: see every hit and how many ticks have elapsed since the countdown started
     if (hostEntry.maxPointsTick !== null) {
       const elapsed = system.currentTick - hostEntry.maxPointsTick;
-      console.warn(
-        `[PKC] Hit during countdown on ${host.typeId} | elapsed=${elapsed}/${SETTINGS.latch.angerDelayTicks} ticks`,
-      );
+      //console.warn(`[PKC] Hit during countdown on ${host.typeId} | elapsed=${elapsed}/${SETTINGS.latch.angerDelayTicks} ticks`,);
     }
 
     if (

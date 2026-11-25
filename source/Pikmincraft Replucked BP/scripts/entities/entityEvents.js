@@ -52,18 +52,8 @@ export function onProjectileHitBlock(event) {
 export function onEntityHurtBefore(event) {
   const { hurtEntity, damage, damageSource } = event;
   if (!hurtEntity?.isValid) return;
-  // 0. Ignore hits from thrown Pikmin projectiles so they never hurt or add shake-off points
-  const projFamily = damageSource.damagingProjectile?.getComponent(
-    EntityComponentTypes.TypeFamily,
-  );
-  if (projFamily?.hasTypeFamily("pikmin_projectile")) {
-    event.cancel = true;
-    return;
-  }
-  const typeFamily = hurtEntity.getComponent(EntityComponentTypes.TypeFamily);
-  if (!typeFamily?.hasTypeFamily("pikmin")) return;
 
-  // 1. Cancel the 0.67 void damage aggro signal while letting AI register the attacker
+  // 1. Cancel the 0.67 void damage aggro signal for ANY entity (Pikmin or retargeted mobs)
   if (
     damageSource.cause === "void" &&
     Math.abs(damage - SETTINGS.pikmin.aggroSignalDamage) < 0.01
@@ -72,7 +62,19 @@ export function onEntityHurtBefore(event) {
     return;
   }
 
-  // 2. Check post-whistle 5-second invulnerability via saved game tick dynamic property
+  const typeFamily = hurtEntity.getComponent(EntityComponentTypes.TypeFamily);
+  if (!typeFamily?.hasTypeFamily("pikmin")) return;
+
+  // 2. Ignore hits from thrown Pikmin projectiles so they never hurt or add shake-off points
+  const projFamily = damageSource.damagingProjectile?.getComponent(
+    EntityComponentTypes.TypeFamily,
+  );
+  if (projFamily?.hasTypeFamily("pikmin_projectile")) {
+    event.cancel = true;
+    return;
+  }
+
+  // 3. Check post-whistle 5-second invulnerability via saved game tick dynamic property
   const invulnTick = pikminManager.getInvulnerableUntilTick(hurtEntity);
   if (
     invulnTick !== undefined &&
@@ -82,7 +84,7 @@ export function onEntityHurtBefore(event) {
     return;
   }
 
-  // 3. Handle Latched-On Pikmin immunity & shake-off progress points
+  // 4. Handle Latched-On Pikmin immunity & shake-off progress points
   const currentState = hurtEntity.getProperty(SETTINGS.entity_properties.state);
   if (
     currentState === "latched" &&
@@ -110,8 +112,14 @@ export function onEntityHitEntity(event) {
 }
 
 export function onEntityDie(event) {
-  const { deadEntity } = event;
+  const { deadEntity, damageSource } = event;
   if (!deadEntity) return;
+
+  const typeFamily = deadEntity.getComponent(EntityComponentTypes.TypeFamily);
+  if (typeFamily?.hasTypeFamily("pikmin")) {
+    pikminManager.handlePikminDeathRetarget(deadEntity, damageSource);
+    return;
+  }
 
   latchManager.handleHostDeath(deadEntity.id);
   pikminManager.handleTargetDeathNearby(deadEntity);

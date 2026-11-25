@@ -24,24 +24,27 @@ export const SETTINGS = {
   pikmin: {
     landingSearchRadius: 4.0,
     midAirItemSearchRadius: 2.5,
+    deathRetargetRadius: 10.0,
     gatherDurationTicks: 60, // 3 seconds
     returnRetryTicks: 20, // 1 second
     postWhistleInvulnTicks: 100, // 5 seconds
     despawnSweepDelayTicks: 2, // Wait for transform -> drop_equipment
     despawnSweepRadius: 2.5,
     aggroSignalDamage: 0.67,
-    indirectHitDamage: 0.2,
+    indirectHitDamage: 1.0,
     executeThresholdHp: 1.0,
     executeDamage: 9999,
     throwVelocityMultiplier: 1.2,
   },
   latch: {
     maxPoints: 5,
-    angerDelayTicks: 60, // 2 seconds after hitting 5 points
+    angerDelayTicks: 40, // 2 seconds after hitting 5 points
     stunDurationTicks: 40, // 2 seconds stunned
-    shakeKnockbackHorizontal: 0.8,
+    shakeKnockbackHorizontal: 10.8,
     shakeKnockbackVertical: 0.4,
     aabbPadding: 0.15,
+    angerParticleId: `${NAMESPACE}:shake_anger`,
+    angerParticleIntervalTicks: 10,
     validDamageCauses: ["entityAttack", "contact", "projectile"],
   },
   whistle: {

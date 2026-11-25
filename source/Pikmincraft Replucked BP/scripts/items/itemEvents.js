@@ -60,7 +60,7 @@ export function itemComponentsRegistry(event) {
     },
   });
 
-  console.warn("[PKC] Custom item components registered.");
+  //console.warn("[PKC] Custom item components registered.");
 }
 
 export function onItemStartUseOn(event) {

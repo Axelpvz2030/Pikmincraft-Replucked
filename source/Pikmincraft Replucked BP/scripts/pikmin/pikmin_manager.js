@@ -324,6 +324,7 @@ export class PikminManager {
     if (indirectDamage <= 0) return;
 
     const remainingHp = healthComp.currentValue - indirectDamage;
+    console.warn(`Dealth: ${indirectDamage} damage, remaining ${remainingHp}`)
 
     // If this hit is lethal (<= 0 HP), execute immediately with owner attribution
     if (remainingHp <= 0.001) {
@@ -370,6 +371,67 @@ export class PikminManager {
         }
       }
     }
+  }
+  /**
+   * When a Pikmin is killed by another entity, finds the nearest living Pikmin
+   * of the same owner within `deathRetargetRadius` and forces the killer to target it.
+   */
+  handlePikminDeathRetarget(deadPikmin, damageSource) {
+    const killer = damageSource?.damagingEntity;
+    if (!killer?.isValid || killer.typeId === "minecraft:player") return;
+
+    const killerHealth = killer.getComponent(EntityComponentTypes.Health);
+    if (!killerHealth || killerHealth.currentValue <= 0) return;
+
+    const ownerId = this.getOwnerId(deadPikmin);
+    if (!ownerId) return;
+
+    const deathPos = { ...deadPikmin.location };
+    const dimension = deadPikmin.dimension;
+    const deadId = deadPikmin.id;
+
+    // Wait 1 tick so the killer's vanilla AI finishes clearing its dead target first
+    system.runTimeout(() => {
+      if (!killer?.isValid) return;
+
+      const nearbyPikmin = dimension.getEntities({
+        location: deathPos,
+        maxDistance: SETTINGS.pikmin.deathRetargetRadius,
+        families: ["pikmin"],
+      });
+
+      let nearestPikmin = null;
+      let minDist = Infinity;
+
+      for (const candidate of nearbyPikmin) {
+        if (!candidate?.isValid || candidate.id === deadId) continue;
+        if (candidate.getDynamicProperty(SETTINGS.dynamic_properties.despawning)) {
+          continue;
+        }
+        if (this.getOwnerId(candidate) !== ownerId) continue;
+
+        const health = candidate.getComponent(EntityComponentTypes.Health);
+        if (!health || health.currentValue <= 0) continue;
+
+        const dist = Vec3.distance(deathPos, candidate.location);
+        if (dist < minDist) {
+          minDist = dist;
+          nearestPikmin = candidate;
+        }
+      }
+
+      if (nearestPikmin) {
+        this.forceTargetEntity(killer, nearestPikmin);
+      }
+    }, 1);
+  }
+
+  getOwnerId(pikmin) {
+    if (!pikmin?.isValid) return undefined;
+    return (
+      pikmin.getDynamicProperty(SETTINGS.dynamic_properties.ownerId) ??
+      pikmin.getComponent(EntityComponentTypes.Tameable)?.tamedToPlayerId
+    );
   }
 
   // ==========================================
